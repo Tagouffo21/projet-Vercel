@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  
+    <body>
+        
+
+        <form id="monFormulaire" style="margin-top: 30px;">
+            <label for="monNom">De :</label>
+            <input id="monNom" name="name" placeholder="jordan@institutsaintjean.org" style="margin-left:10px;" /> <br>
+            <label for="monNom" style="margin-top:20px;">A :</label>
+            <input id="monNom" name="name" placeholder="dsi@institutsaintjean.org" style="margin-left:15px;" /> <br>
+            <label for="monNom" style="margin-top:20px;"> Objet :</label>
+            <input id="monNom" name="name" placeholder="Demande de materiel" /> <br>
+          </form>
+
+          <form id="leFormulaire">
+            <p>
+              <label for="leTexte"></label>
+               <textarea name="monTexte" id="leTexte" cols="30" rows="10" placeholder="Redigez votre message" style="margin-top: 20px;">
+               </textarea>
+            </p>
+            <p>
+              <label for="leFichier">Données fichier :</label>
+              <input id="leFichier" name="monFichier" type="file" />
+            </p>
+            <input type="submit" value="Envoyer !"  style="margin-left:300px; background-color: rgb(8, 8, 99); color: white; border-radius:20px; width:90px;"/>
+          </form>
+          
+
+          <script>
+            window.addEventListener("load", () => {
+  function sendData() {
+    const XHR = new XMLHttpRequest();
+
+    // on crée l'objet FormData en le rattachant
+    // à l'élément de formulaire
+    const FD = new FormData(form);
+
+    // On définit ce qui se produit lorsque
+    // les données sont bien envoyées
+    XHR.addEventListener("load", (event) => {
+      alert(event.target.responseText);
+    });
+
+    // On définit ce qui se produit en cas
+    // d'erreur
+    XHR.addEventListener("error", (event) => {
+      alert('Une erreur est survenue.');
+    });
+
+    // On prépare la requête
+    XHR.open("POST", "https://example.com/cors.php");
+
+    // On envoie les données avec ce qui a été
+    // fourni dans le formulaire
+    XHR.send(FD);
+  }
+
+  // On récupère une référence au formulaire HTML
+  const form = document.getElementById("monFormulaire");
+
+  // On ajoute un gestionnaire d'évènement 'submit'
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    sendData();
+  });
+});
+
+
+// On souhaite accéder aux nœuds du DOM,
+// on initialise donc le script au chargement
+// de la page
+window.addEventListener('load', () => {
+
+// On utilisera ces variables pour stocker
+// les données du formulaire
+const text = document.getElementById("leTexte");
+const file = {
+  dom: document.getElementById("leFichier"),
+  binary: null,
+};
+
+// On utilise l'API FileReader pour lire le contenu
+// du fichier
+const reader = new FileReader();
+
+// FileReader est asynchrone, on stocke le résultat
+// lorsque la lecture du fichier est terminée.
+reader.addEventListener("load", () => {
+  file.binary = reader.result;
+});
+
+// Au chargement de la page, si un fichier est
+// déjà sélectionné, on le lit.
+if (file.dom.files[0]) {
+  reader.readAsBinaryString(file.dom.files[0]);
+}
+
+// Si ce n'est pas le cas, on attend que la personne
+// sélectionne un fichier.
+file.dom.addEventListener("change", () => {
+  if (reader.readyState === FileReader.LOADING) {
+    reader.abort();
+  }
+
+  reader.readAsBinaryString(file.dom.files[0]);
+});
+
+// sendData est la fonction principale
+function sendData() {
+  // S'il y a un fichier sélectionné, on attend qu'il ait été lu
+  // Sinon, on retarde l'exécution de la fonction
+  if (!file.binary && file.dom.files.length > 0) {
+    setTimeout(sendData, 10);
+    return;
+  }
+
+  // Pour construire la requête de formulaire multi-parties
+  // il nous faut une instance XMLHttpRequest
+  const XHR = new XMLHttpRequest();
+
+  // Il nous faut un séparateur pour définir chaque partie
+  // de la requête
+  const boundary = "blob";
+
+  // On stocke le corps de la requête dans une chaîne de
+  // caractères
+  let data = "";
+
+  // Si un fichier a été sélectionné :
+  if (file.dom.files[0]) {
+    // On commence un nouveau fragment dans le corps de 
+    // la requête
+    data += `--${boundary}\r\n`;
+
+    // On le décrit comme données de formulaire
+    data += 'content-disposition: form-data; '
+    // On indique le nom des données du formulaire
+          + `name="${file.dom.name}"; `
+    // On fournit le nom effectif du fichier
+          + `filename="${file.dom.files[0].name}"\r\n`;
+    // Ainsi que le type MIME du fichier
+    data += `Content-Type: ${file.dom.files[0].type}\r\n`;
+
+    // Il y a un saut de ligne entre les métadonnées
+    // et les données
+    data += '\r\n';
+
+    // On concatène les données binaires au corps de la
+    // requête
+    data += file.binary + '\r\n';
+  }
+
+  // Pour les données texte, c'est plus simple :
+  // on commence un nouveau fragment dans le corps
+  // de la requête.
+  data += `--${boundary}\r\n`;
+
+  // On indique qu'il s'agit de données de formulaire et on
+  // précise un nom
+  data += `content-disposition: form-data; name="${text.name}"\r\n`;
+  // Il y a un saut de ligne entre les métadonnées
+  // et les données
+  data += '\r\n';
+
+  // On ajoute les données texte au corps de la requête
+  data += text.value + "\r\n";
+
+  // Et lorsque c'est terminé, on ferme le corps de la requête
+  data += `--${boundary}--`;
+
+  // On définit ce qui se produit en cas de réussite
+  XHR.addEventListener('load', (event) => {
+    alert('Les données ont bien été envoyées et la réponse chargée.');
+  });
+
+  // On définit ce qui se passe en cas d'échec
+  XHR.addEventListener('error', (event) => {
+    alert('Une erreur est survenue.');
+  });
+
+  // On prépare la requête
+  XHR.open('POST', 'https://example.com/cors.php');
+
+  // On ajoute l'en-tête HTTP pour le format des données
+  XHR.setRequestHeader('Content-Type', `multipart/form-data; boundary=${boundary}`);
+
+  // On envoie les données
+  XHR.send(data);
+}
+
+// On récupère l'élément du formulaire
+const form = document.getElementById('leFormulaire');
+
+// On ajoute un gestionnaire d'évènement 'submit'
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  sendData();
+});
+});
+
+
+
+
+          </script>
+          
+  
+  
+  </body>
+   
+
+</html>

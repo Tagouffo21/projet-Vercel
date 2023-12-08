@@ -1,0 +1,62 @@
+.cd{
+    background-color:rgb(134, 133, 133);
+    text-align: right;
+    color: #c68dea;
+    display: flex;
+    margin-left: -50px;
+     width: 1400px;
+    margin-top: 20px;
+    height:30px;
+    height:45px;
+}
+li{
+    list-style-type:none;
+   display: inline-block;
+}
+ul{
+    font-style:normal ;
+    display: flex;
+    flex-direction: row;   
+}
+
+.cercle{
+   /* width:90px;
+    padding-top:10px;
+    padding-bottom:50px;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   /* margin-left: 178px;
+    margin-top: 10px;*/
+
+}
+
+.cercle>div{
+    margin: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border:black;
+    background:rgba(4, 4, 92, 0.897);
+    margin-left:140px;
+    margin-top:-19px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.uu {
+    background-color: rgb(134, 133, 133);
+    width:300px;
+    height:250px;
+    /*margin-top:10px;*/
+    margin-left:60px;
+    overflow-y:scroll;
+    scrollbar-color:   white;
+    scrollbar-width:thin ;
+    scroll-margin-block: 2px;
+}
+
+body{
+    background-image:url("C:/nginx-1.22.1/html/mon premier programme/Projet_tutoré/projet/src/assets/fig2.jpg");
+    height:700px;
+}
